@@ -14,9 +14,12 @@ int main()
 		fmt::print(stderr, "Couldn't open file\n");
 		return 1;
 	}
-	std::string json_data {std::istream_iterator<char>(test_json), std::istream_iterator<char>()};
 
-	fmt::print("{}\n", json_data);
+	const std::string json_data {std::istream_iterator<char>(test_json),
+								 std::istream_iterator<char>()};
+
+	fmt::print(fmt::fg(fmt::color::cyan), "{}\n", json_data);
+	fmt::print("Reset?\n");
 
 	return 0;
 }

@@ -1,5 +1,6 @@
 include_rules
 
+CXX_LIBS += -I../include
 EXE := ../bin/JSON
 
 : foreach *.cpp | *.hpp |> !cxx |> {objs}
