@@ -1,0 +1,7 @@
+include_rules
+
+EXE := ../bin/JSON
+
+: foreach *.cpp | *.hpp |> !cxx |> {objs}
+: {objs} |> !exe |>
+
