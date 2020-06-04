@@ -71,3 +71,4 @@ tags
 *.cflags
 *.cxxflags
 .tup/
+bin/
