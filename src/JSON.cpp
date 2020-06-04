@@ -1,6 +1,6 @@
+#include "Object.hpp"
 #include "Utility.hpp"
 
-#include <fmt/color.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fstream>
@@ -18,8 +18,8 @@ int main()
 	const std::string json_data {std::istream_iterator<char>(test_json),
 								 std::istream_iterator<char>()};
 
-	fmt::print(fmt::fg(fmt::color::cyan), "{}\n", json_data);
-	fmt::print("Reset?\n");
+	fmt::print("{}\n", json_data);
+	OK::Object obj;
 
 	return 0;
 }
