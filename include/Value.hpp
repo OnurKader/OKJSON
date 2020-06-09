@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utility.hpp"
+
 #include <fmt/core.h>
 #include <string>
 
@@ -25,32 +27,32 @@ public:
 	Value() : m_type(Type::Empty) {}
 
 	// Setters
-	explicit Value(const int64_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	explicit Value(const uint64_t value) : m_type(Type::Integer)
+	Value(const int64_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	Value(const uint64_t value) : m_type(Type::Integer)
 	{
 		m_value.m_integer = static_cast<int64_t>(value);
 	}
-	explicit Value(const int32_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	explicit Value(const uint32_t value) : m_type(Type::Integer)
+	Value(const int32_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	Value(const uint32_t value) : m_type(Type::Integer)
 	{
 		m_value.m_integer = static_cast<int64_t>(value);
 	}
-	explicit Value(const int16_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	explicit Value(const uint16_t value) : m_type(Type::Integer)
+	Value(const int16_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	Value(const uint16_t value) : m_type(Type::Integer)
 	{
 		m_value.m_integer = static_cast<int64_t>(value);
 	}
 
-	explicit Value(const float value) : m_type(Type::Double) { m_value.m_double = value; }
-	explicit Value(const double value) : m_type(Type::Double) { m_value.m_double = value; }
+	Value(const float value) : m_type(Type::Double) { m_value.m_double = value; }
+	Value(const double value) : m_type(Type::Double) { m_value.m_double = value; }
 
-	explicit Value(const bool value) : m_type(Type::Boolean) { m_value.m_boolean = value; }
+	Value(const bool value) : m_type(Type::Boolean) { m_value.m_boolean = value; }
 
-	explicit Value(std::string* value) : m_type(Type::String) { m_value.m_string = value; }
+	Value(std::string* value) : m_type(Type::String) { m_value.m_string = value; }
 
-	explicit Value(Object* value) : m_type(Type::Object) { m_value.m_object = value; }
+	Value(Object* value) : m_type(Type::Object) { m_value.m_object = value; }
 
-	explicit Value(const Type type) : m_type(type) {}
+	Value(const Type type) : m_type(type) {}
 
 	// Getters
 	Type type() const { return m_type; }
@@ -77,13 +79,13 @@ public:
 	{
 		switch(m_type)
 		{
-				// using enum Type;
+			// using enum Type;
 			case Type::Boolean: return m_value.m_boolean;
 			case Type::Null: [[fallthrough]];
 			case Type::Undefined: [[fallthrough]];
 			case Type::Empty: return false;
 			case Type::Integer: return m_value.m_integer != 0LL;
-			case Type::Double: return m_value.m_double != 0.0;
+			case Type::Double: return feq(m_value.m_double, 0.0);
 			case Type::String:
 			{
 				return [this]() -> bool {
@@ -107,25 +109,11 @@ public:
 	}	 // TODO: What about Object? Or what return value if null or smth? -INT64_MAX?
 	*/
 
-	std::string to_string() const
-	{
-		switch(m_type)
-		{
-			case Type::Integer: return fmt::format("{}", m_value.m_integer);
-			case Type::Double: return fmt::format("{}", m_value.m_double);
-			case Type::Boolean: return fmt::format("{}", m_value.m_boolean);
-			case Type::String: return fmt::format("{}", *m_value.m_string);
-			case Type::Object:
-				return "Object";	// FIXME: Do the actual printing by calling
-									// m_value.m_object.dump() or .to_string()
-			case Type::Null: return "null";
-			case Type::Undefined: return "undefined";
-			default: return {};
-		}
-	}
+	std::string to_string() const;
 
 private:
 	Type m_type {Type::Empty};
+
 	union {
 		int64_t m_integer;
 		double m_double;
@@ -135,10 +123,22 @@ private:
 		Object* m_object;
 	} m_value;
 };
-
-Value undefined() { return Value(Type::Undefined); }
-Value null() { return Value(Type::Null); }
-
 }	 // namespace OK
 
-// TODO: fmt formatter for value
+template<>
+struct fmt::formatter<OK::Value>
+{
+	constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+	template<typename FormatContext>
+	auto format(const OK::Value& val, FormatContext& fc)
+	{
+		return format_to(fc.out(), "{}", val.to_string());
+	}
+
+	template<typename FormatContext>
+	auto format(OK::Value& val, FormatContext& fc)
+	{
+		return format_to(fc.out(), "{}", val.to_string());
+	}
+};

@@ -1,10 +1,9 @@
 #pragma once
 
+#include <string>
+
 namespace OK
 {
-class Property final
-{
-public:
-private:
-};
+using Property = std::string;
+// using PropertyView = std::string_view;
 }	 // namespace OK

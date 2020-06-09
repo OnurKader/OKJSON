@@ -1,5 +1,6 @@
 #include "Object.hpp"
 #include "Utility.hpp"
+#include "Value.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -8,7 +9,7 @@
 
 int main()
 {
-	std::ifstream test_json {"test.json"};
+	std::ifstream test_json {"easy.json"};
 	if(!test_json)
 	{
 		fmt::print(stderr, "Couldn't open file\n");
@@ -20,6 +21,10 @@ int main()
 
 	fmt::print("{}\n", json_data);
 	OK::Object obj;
+	obj.set("OwO", 12);
+	obj.set("yeah", 3.141526);
+
+	fmt::print("Obj: {}\n", obj.to_string());
 
 	return 0;
 }

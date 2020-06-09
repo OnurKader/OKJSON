@@ -1,8 +1,10 @@
 #pragma once
+
 #include <array>
 #include <cstddef>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <limits>
 #include <vector>
 
 template<typename T, size_t S>
@@ -48,3 +50,17 @@ struct fmt::formatter<std::pair<T1, T2>>
 		return format_to(fc.out(), "({}, {})", pair.first, pair.second);
 	}
 };
+
+template<typename FloatingPoint>
+constexpr FloatingPoint abs(
+	FloatingPoint x,
+	typename std::enable_if<std::is_floating_point<FloatingPoint>::value>::type* = nullptr)
+{
+	return x >= 0 ? x : x < 0 ? -x : std::numeric_limits<FloatingPoint>::infinity();
+}
+
+template<typename T>
+constexpr bool feq(const T x, const T y)
+{
+	return abs(x - y) <= std::numeric_limits<T>::epsilon();
+}
