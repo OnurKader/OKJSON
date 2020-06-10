@@ -15,6 +15,7 @@ int main()
 		return 1;
 	}
 
+	// FIXME: Get rid of whitespace some other way, this also affects strings
 	const std::string json_data {std::istream_iterator<char>(json_file),
 								 std::istream_iterator<char>()};
 
@@ -24,14 +25,6 @@ int main()
 
 	OK::Object json_object = parser.parse();
 	fmt::print("Parsed Object:\n{}\n", json_object);
-
-	/*
-	OK::Object obj;
-	obj.set("OwO", 12);
-	obj.set("yeah", 3.141526);
-
-	fmt::print("Obj:\n{}\n", obj.to_string());
-	*/
 
 	return 0;
 }

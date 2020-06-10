@@ -1,4 +1,5 @@
 {
 	"a": 42,
-	"b": -69
+	"b": -69,
+	"c": "Spaces are removed here?"
 }

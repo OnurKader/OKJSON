@@ -8,6 +8,7 @@
 namespace OK
 {
 class Object;
+class Array;
 
 // Maybe get rid of Empty, and just start everything with Undefined
 enum class Type : uint8_t
@@ -17,9 +18,10 @@ enum class Type : uint8_t
 	Null,
 	Integer,
 	Double,
+	Boolean,
 	String,
 	Object,
-	Boolean
+	Array
 };
 
 class Value final
@@ -32,6 +34,7 @@ public:
 		// Maybe shared_ptr?
 		std::string* m_string;
 		Object* m_object;
+		Array* m_array;
 	};
 
 	Value() : m_type(Type::Empty) {}
@@ -69,6 +72,8 @@ public:
 
 	Value(Object* value) : m_type(Type::Object) { m_value.m_object = value; }
 
+	Value(Array* value) : m_type(Type::Array) { m_value.m_array = value; }
+
 	Value(const Type type) : m_type(type) {}
 
 	// Getters
@@ -84,13 +89,24 @@ public:
 	const std::string& as_string() const { return *m_value.m_string; }
 	Object& as_object() { return *m_value.m_object; }
 	const Object& as_object() const { return *m_value.m_object; }
+	Array& as_array() { return *m_value.m_array; }
+	const Array& as_array() const { return *m_value.m_array; }
 
-	bool empty() const { return m_type == Type::Empty; }
+	// Inline these?
+	bool is_empty() const { return m_type == Type::Empty; }
 	bool has_value() const { return m_type == Type::Empty; }
+
+	bool is_null() const { return m_type == Type::Null; }
+	bool is_undefined() const { return m_type == Type::Undefined; }
+	bool is_number() const { return (m_type == Type::Integer || m_type == Type::Double); }
+	bool is_bool() const { return m_type == Type::Boolean; }
+	bool is_string() const { return m_type == Type::String; }
+	bool is_object() const { return m_type == Type::Object; }
+	bool is_array() const { return m_type == Type::Array; }
 
 	Value value_or(const Value other)
 	{
-		if(empty())
+		if(is_empty())
 			return other;
 		return *this;
 	}
@@ -118,6 +134,9 @@ public:
 			{
 				return m_value.m_object != nullptr;
 			}
+			case Type::Array:
+				// FIXME: Both Object and Array should also check if they're empty
+				return m_value.m_array != nullptr;
 			default:
 				// LOL What? Why are you here? Maybe assert()?
 				break;
@@ -140,6 +159,8 @@ private:
 Value from_string(const std::string& str);
 
 Value from_object(const Object& obj);
+
+Value from_array(const Array& arr);
 
 }	 // namespace OK
 

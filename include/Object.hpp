@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Array.hpp"
 #include "Property.hpp"
 #include "Value.hpp"
 
@@ -23,6 +24,13 @@ public:
 		free_memory_if_pointer(property_name);
 		std::string* wow_this_code_sucks = new std::string(str);
 		m_value_map[property_name] = Value(wow_this_code_sucks);
+	}
+
+	void set(const std::string_view t_property_name, const Value value)
+	{
+		std::string property_name(t_property_name);
+		free_memory_if_pointer(property_name);
+		m_value_map[property_name] = value;
 	}
 
 	void set(const Property property_name, const Object obj)
@@ -52,6 +60,7 @@ private:
 			{
 				case Type::String: delete temp.value().m_string; break;
 				case Type::Object: delete temp.value().m_object; break;
+				case Type::Array: delete temp.value().m_array; break;
 				default: break;
 			}
 		}

@@ -62,5 +62,5 @@ constexpr FloatingPoint abs(
 template<typename T>
 constexpr bool feq(const T x, const T y)
 {
-	return abs(x - y) <= std::numeric_limits<T>::epsilon();
+	return abs(x - y) <= std::numeric_limits<T>::epsilon() * 2;
 }
