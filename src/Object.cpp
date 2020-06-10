@@ -12,7 +12,8 @@ std::string Object::to_string() const
 
 	for(const auto& [key, value]: m_value_map)
 	{
-		fmt::format_to(buff, "\t{}: {},\n", key, value);
+		// FIXME: Object printing, somehow keep the tab info, the depth/level
+		fmt::format_to(buff, "\t\"{}\": {},\n", key, value);
 	}
 
 	fmt::format_to(buff, "{}", '}');

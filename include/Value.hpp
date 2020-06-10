@@ -9,6 +9,7 @@ namespace OK
 {
 class Object;
 
+// Maybe get rid of Empty, and just start everything with Undefined
 enum class Type : uint8_t
 {
 	Empty,
@@ -24,14 +25,30 @@ enum class Type : uint8_t
 class Value final
 {
 public:
+	using ValueType = union {
+		int64_t m_integer;
+		double m_double;
+		bool m_boolean;
+		// Maybe shared_ptr?
+		std::string* m_string;
+		Object* m_object;
+	};
+
 	Value() : m_type(Type::Empty) {}
+	~Value();
 
 	// Setters
+	Value(const long long value) : m_type(Type::Integer) { m_value.m_integer = value; }
 	Value(const int64_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	Value(const unsigned long long value) : m_type(Type::Integer)
+	{
+		m_value.m_integer = static_cast<int64_t>(value);
+	}
 	Value(const uint64_t value) : m_type(Type::Integer)
 	{
 		m_value.m_integer = static_cast<int64_t>(value);
 	}
+
 	Value(const int32_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
 	Value(const uint32_t value) : m_type(Type::Integer)
 	{
@@ -56,6 +73,9 @@ public:
 
 	// Getters
 	Type type() const { return m_type; }
+
+	ValueType& value() { return m_value; }
+	const ValueType& value() const { return m_value; }
 
 	int64_t as_int() const { return m_value.m_integer; }
 	double as_double() const { return m_value.m_double; }
@@ -114,15 +134,13 @@ public:
 private:
 	Type m_type {Type::Empty};
 
-	union {
-		int64_t m_integer;
-		double m_double;
-		bool m_boolean;
-		// Maybe shared_ptr?
-		std::string* m_string;
-		Object* m_object;
-	} m_value;
+	ValueType m_value;
 };
+
+Value from_string(const std::string& str);
+
+Value from_object(const Object& obj);
+
 }	 // namespace OK
 
 template<>
@@ -132,12 +150,6 @@ struct fmt::formatter<OK::Value>
 
 	template<typename FormatContext>
 	auto format(const OK::Value& val, FormatContext& fc)
-	{
-		return format_to(fc.out(), "{}", val.to_string());
-	}
-
-	template<typename FormatContext>
-	auto format(OK::Value& val, FormatContext& fc)
 	{
 		return format_to(fc.out(), "{}", val.to_string());
 	}
