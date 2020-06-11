@@ -5,9 +5,6 @@
 
 namespace OK
 {
-inline Value undefined() { return Value(Type::Undefined); }
-inline Value null() { return Value(Type::Null); }
-
 std::string Value::to_string() const
 {
 	switch(m_type)
@@ -23,17 +20,6 @@ std::string Value::to_string() const
 		case Type::Null: return "null";
 		case Type::Undefined: return "undefined";
 		case Type::Empty: return "EMPTY!";
-	}
-}
-
-Value::~Value()
-{
-	switch(m_type)
-	{
-		case Type::String: delete m_value.m_string; break;
-		case Type::Object: delete m_value.m_object; break;
-		case Type::Array: delete m_value.m_array; break;
-		default: break;
 	}
 }
 

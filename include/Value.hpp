@@ -38,7 +38,6 @@ public:
 	};
 
 	Value() : m_type(Type::Empty) {}
-	~Value();
 
 	// Setters
 	Value(const long long value) : m_type(Type::Integer) { m_value.m_integer = value; }
@@ -143,11 +142,6 @@ public:
 		}
 	}
 
-	/*
-	int64_t to_int() const {
-	}	 // TODO: What about Object? Or what return value if null or smth? -INT64_MAX?
-	*/
-
 	std::string to_string() const;
 
 private:
@@ -161,6 +155,10 @@ Value from_string(const std::string& str);
 Value from_object(const Object& obj);
 
 Value from_array(const Array& arr);
+
+inline Value undefined() { return Value(Type::Undefined); }
+
+inline Value null() { return Value(Type::Null); }
 
 }	 // namespace OK
 
