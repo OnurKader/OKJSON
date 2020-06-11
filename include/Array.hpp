@@ -12,11 +12,15 @@ class Array final
 public:
 	// Maybe a variadic template?
 	Array(const std::initializer_list<Value>);
+	Array(std::vector<Value>&&);
 
 	void push(const Value);
 	void push(Value&&);
 
 	Value pop();
+
+	std::vector<Value>& vector();
+	const std::vector<Value>& vector() const;
 
 	void clear();
 

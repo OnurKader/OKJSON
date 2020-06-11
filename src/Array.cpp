@@ -4,6 +4,8 @@ namespace OK
 {
 Array::Array(const std::initializer_list<Value> init_list) : m_values {init_list} {}
 
+Array::Array(std::vector<Value>&& vec) : m_values(vec) {}
+
 void Array::push(const Value value) { m_values.push_back(value); }
 void Array::push(Value&& value) { m_values.push_back(value); }
 
