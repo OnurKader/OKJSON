@@ -61,62 +61,61 @@ Object Parser::parse()
 
 Value Parser::parse_value(const std::string_view) {}
 
-int64_t Parser::parse_int(const std::string_view) {}
-
-double Parser::parse_double(const std::string_view) {}
-
-bool Parser::parse_bool(const std::string_view) {}
-
-std::string* Parser::parse_string(const std::string_view) {}
-
-Object* Parser::parse_object(const std::string_view) {}
-
-Array* Parser::parse_array(const std::string_view) {}
-
-// Maybe just use strtol()?
-bool Parser::is_valid_int(const std::string_view str_view)
+std::optional<int64_t> Parser::parse_int(const std::string_view str_view)
 {
-	// TODO: Hex and Octal support
-	const bool minus_followed_by_digit =
-		(str_view.size() > 1ULL && str_view.starts_with('-') && std::isdigit(str_view[1]));
-	const bool starts_with_a_digit = std::isdigit(str_view.front());
-	if(minus_followed_by_digit || starts_with_a_digit)
-	{
-		for(size_t i = 1ULL; i < str_view.size(); ++i)
-			if(!std::isdigit(str_view[i]))
-				return false;
+	assert(str_view.size() < 128ULL);
+	char buff[128ULL];
+	str_view.copy(buff, str_view.size());
+	buff[str_view.size()] = '\0';
+	char* end;
+	const int64_t result = std::strtoll(buff, &end, 10);
 
+	if(*end == 0)
+		return result;
+	return std::nullopt;
+}
+
+std::optional<double> Parser::parse_double(const std::string_view str_view)
+{
+	assert(str_view.size() < 128ULL);
+	char buff[128ULL];
+	str_view.copy(buff, str_view.size());
+	buff[str_view.size()] = '\0';
+	char* end;
+	const double result = std::strtod(buff, &end);
+
+	if(*end == 0)
+		return result;
+	return std::nullopt;
+}
+
+std::optional<bool> Parser::parse_bool(const std::string_view str_view)
+{
+	const bool truth = (str_view == "true");
+	if(truth)
 		return true;
-	}
+	const bool fault = (str_view == "false");
+	if(fault)
+		return false;
 
-	return false;
+	return std::nullopt;
 }
 
-bool Parser::is_valid_double(const std::string_view str_view)
+std::optional<std::string*> Parser::parse_string(const std::string_view str_view)
 {
-	// TODO: Maybe check for validity with strtod so it supports 1e9 kind of syntax;
+	// Maybe check escape sequences \", \n etc...
+	if(str_view.starts_with('"') && str_view.ends_with('"'))
+		return new std::string(str_view);
+
+	return std::nullopt;
 }
 
-bool Parser::is_valid_bool(const std::string_view str_view)
+std::optional<Object*> Parser::parse_object(const std::string_view str_view) {}
+
+std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 {
-	return (str_view == "true" || str_view == "false");
-}
-
-bool Parser::is_valid_string(const std::string_view str_view)
-{
-	// Maybe check for proper escape sequences \d is not valid etc.
-	// Also check to see if all quotes match, or if they are escaped properly
-	// "str": "So I said "OwO?" and he didn't like that!"
-	return (str_view.starts_with('"') || str_view.ends_with('"'));
-}
-
-bool Parser::is_valid_object(const std::string_view)
-{	 // TODO: Do proper brace checks, or maybe do a Parser::parse_value() and if returned is
-	 // undefined or empty then no
-}
-
-bool Parser::is_valid_array(const std::string_view)
-{	 // TODO: Check all individual Values and see if they are valid, and allow trailing comma
+	if(!str_view.starts_with('[') || !str_view.ends_with(']'))
+		return std::nullopt;
 }
 
 }	 // namespace OK

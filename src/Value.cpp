@@ -19,10 +19,10 @@ std::string Value::to_string() const
 			return fmt::format("\"{}\"", *m_value.m_string);
 			//		case Type::Object: return fmt::format("{}", m_value.m_object);
 		case Type::Object: return m_value.m_object->to_string();
-		case Type::Array: return "Array!";
+		case Type::Array: return m_value.m_array->to_string();
 		case Type::Null: return "null";
 		case Type::Undefined: return "undefined";
-		default: return {};
+		case Type::Empty: return "EMPTY!";
 	}
 }
 
