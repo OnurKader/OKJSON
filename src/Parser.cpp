@@ -62,18 +62,21 @@ Object Parser::parse()
 
 Value Parser::parse_value(const std::string_view str_view)
 {
-	fmt::print("Value to be parsed: \"{}\"\n", str_view);
-
 	if(auto opt = parse_int(str_view); opt.has_value())
 		return Value(opt.value());
+
 	if(auto opt = parse_double(str_view); opt.has_value())
 		return Value(opt.value());
+
 	if(auto opt = parse_bool(str_view); opt.has_value())
 		return Value(opt.value());
+
 	if(auto opt = parse_string(str_view); opt.has_value())
 		return Value(opt.value());
+
 	if(auto opt = parse_object(str_view); opt.has_value())
 		return Value(opt.value());
+
 	if(auto opt = parse_array(str_view); opt.has_value())
 		return Value(opt.value());
 
@@ -168,8 +171,6 @@ std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 inline OK::Value get_value_after_colon(const std::string_view str_view, const size_t colon_index)
 {
 	// TODO: Add object parsing
-	// return Parser::parse_value(str_view.substr(colon_index), sep_index (?));
-
 	const auto comma_or_brace_index = str_view.find_first_of(",}", colon_index + 1ULL);
 	const std::string_view colon_value_str =
 		str_view.substr(colon_index + 1ULL, comma_or_brace_index - colon_index - 1ULL);

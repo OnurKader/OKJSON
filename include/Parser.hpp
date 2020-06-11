@@ -11,7 +11,7 @@ namespace OK
 class Parser final
 {
 public:
-	Parser(const std::string& str) : m_str(str) {}
+	Parser(const std::string_view str) : m_str(str) {}
 
 	Object parse();
 	static Value parse_value(const std::string_view);

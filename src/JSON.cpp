@@ -19,7 +19,7 @@ int main()
 	const std::string json_data {std::istream_iterator<char>(json_file),
 								 std::istream_iterator<char>()};
 
-	fmt::print("{}\n", json_data);
+	fmt::print("Read JSON as:\n{}\n", json_data);
 
 	OK::Parser parser(json_data);
 
