@@ -1,5 +1,6 @@
 #include "Parser.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <string>
@@ -36,9 +37,9 @@ Object Parser::parse()
 	{
 		switch(m_str[i])
 		{
-			case '"':
+			case '\"':
 			{
-				const size_t next_quote = m_str.find('"', i + 1ULL);
+				const size_t next_quote = m_str.find('\"', i + 1ULL);
 				if(next_quote == m_str.npos)
 					ASSERT_NOT_REACHED;
 				property_name = get_variable_name_in_quotes(m_str, i);
@@ -59,7 +60,27 @@ Object Parser::parse()
 	return result;
 }
 
-Value Parser::parse_value(const std::string_view) {}
+Value Parser::parse_value(const std::string_view str_view)
+{
+	fmt::print("Value to be parsed: \"{}\"\n", str_view);
+
+	if(auto opt = parse_int(str_view); opt.has_value())
+		return Value(opt.value());
+	if(auto opt = parse_double(str_view); opt.has_value())
+		return Value(opt.value());
+	if(auto opt = parse_bool(str_view); opt.has_value())
+		return Value(opt.value());
+	if(auto opt = parse_string(str_view); opt.has_value())
+		return Value(opt.value());
+	if(auto opt = parse_object(str_view); opt.has_value())
+		return Value(opt.value());
+	if(auto opt = parse_array(str_view); opt.has_value())
+		return Value(opt.value());
+
+	fmt::print(stderr, "AAAHHH! Unrecognized value!\n");
+
+	return undefined();
+}
 
 std::optional<int64_t> Parser::parse_int(const std::string_view str_view)
 {
@@ -104,39 +125,55 @@ std::optional<bool> Parser::parse_bool(const std::string_view str_view)
 std::optional<std::string*> Parser::parse_string(const std::string_view str_view)
 {
 	// Maybe check escape sequences \", \n etc...
-	if(str_view.starts_with('"') && str_view.ends_with('"'))
+	if(str_view.starts_with('\"') && str_view.ends_with('\"'))
 		return new std::string(str_view);
 
 	return std::nullopt;
 }
 
-std::optional<Object*> Parser::parse_object(const std::string_view str_view) {}
+std::optional<Object*> Parser::parse_object(const std::string_view str_view)
+{
+	// TODO: Maybe deal with parse_value first
+	return std::nullopt;
+}
 
 std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 {
 	if(!str_view.starts_with('[') || !str_view.ends_with(']'))
 		return std::nullopt;
+
+	// FIXME: Very bad, strings can have commas in them!
+	const size_t comma_count =
+		static_cast<size_t>(std::count(str_view.cbegin(), str_view.cend(), ','));
+	std::vector<Value> values;
+	values.reserve(comma_count + 1ULL);
+	// Maybe just std::all_of() with !parse_value().is_undefined()?
+	for(size_t i = 1ULL; i < str_view.size(); ++i)
+	{
+		const size_t seperator_index = str_view.find_first_of(",]", i + 1ULL);
+		std::string_view value_seperated_by_comma = str_view.substr(i, seperator_index - 1ULL);
+		// Qt Creator doesn't support this syntax
+		if(const Value value = parse_value(value_seperated_by_comma); !value.is_undefined())
+			values.push_back(value);	// emplace_back with value? Copy const?
+		else
+			return std::nullopt;
+	}
+
+	return new Array(std::move(values));
 }
 
 }	 // namespace OK
 
+// Replace colon_index with just str_view but it's subtsringed
 inline OK::Value get_value_after_colon(const std::string_view str_view, const size_t colon_index)
 {
-	// TODO: Add integer, double, boolean, string, object, array parsing
+	// TODO: Add object parsing
 	// return Parser::parse_value(str_view.substr(colon_index), sep_index (?));
 
-	// FIXME: Check for array or string stuff
-	/*
-	 * {
-	 * 	"a": "Well, my name is {Onur}",
-	 * 	"b": [1, 2, 3]
-	 * }
-	 */
-	const auto comma_or_brace_index = str_view.find_first_of(",}");
+	const auto comma_or_brace_index = str_view.find_first_of(",}", colon_index + 1ULL);
 	const std::string_view colon_value_str =
 		str_view.substr(colon_index + 1ULL, comma_or_brace_index - colon_index - 1ULL);
-	// Parser::parse_value(colon_value_str);
-	return OK::Value(1337ULL);
+	return OK::Parser::parse_value(colon_value_str);
 }
 
 std::string_view get_variable_name_in_quotes(const std::string_view str_view,
