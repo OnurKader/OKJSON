@@ -20,10 +20,10 @@ Read JSON as:
 	"d": 3.141592653589793,
 	"e": 6.942e4,
 	"foo": false,
-	"simple_array": [1, 2, 3],
-	"complex_array": [-1, 2.3, "OwO", true],
 	"hex": 0x41,
 	"octal": 033,
+	"simple_array": [1, 2, 3],
+	"complex_array": [-1, 2.3, "OwO", true],
 	"hard_array": [-2, "Hard", [1, 2, 3], false, null],
 }
 
@@ -34,9 +34,12 @@ Value Parsed: true
 Value Parsed: 3.141592653589793
 Value Parsed: 6.942e4
 Value Parsed: false
+Value Parsed: 0x41
+Value Parsed: 033
 Value Parsed: [1
 
 Parsed Object:
 {
 }
 ```
+

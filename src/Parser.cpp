@@ -196,7 +196,7 @@ std::string_view get_variable_name_in_quotes(const std::string_view str_view)
 
 OK::Value get_value_after_colon(const std::string_view str_view)
 {
-	// FIXME: Change these ones to proper space ignoring code!
+	// FIXME: Do some special parsing for " and { and [
 
 	// BUG: This breaks objects, {"a": {"owo": 12}}
 	//                                will detect ^ as the ending, but it's not
