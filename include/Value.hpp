@@ -40,71 +40,71 @@ public:
 	Value() : m_type(Type::Empty) {}
 
 	// Setters
-	Value(const long long value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	Value(const int64_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	Value(const unsigned long long value) : m_type(Type::Integer)
+	explicit Value(const long long value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	explicit Value(const int64_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	explicit Value(const unsigned long long value) : m_type(Type::Integer)
 	{
 		m_value.m_integer = static_cast<int64_t>(value);
 	}
-	Value(const uint64_t value) : m_type(Type::Integer)
-	{
-		m_value.m_integer = static_cast<int64_t>(value);
-	}
-
-	Value(const int32_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	Value(const uint32_t value) : m_type(Type::Integer)
-	{
-		m_value.m_integer = static_cast<int64_t>(value);
-	}
-	Value(const int16_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
-	Value(const uint16_t value) : m_type(Type::Integer)
+	explicit Value(const uint64_t value) : m_type(Type::Integer)
 	{
 		m_value.m_integer = static_cast<int64_t>(value);
 	}
 
-	Value(const float value) : m_type(Type::Double) { m_value.m_double = value; }
-	Value(const double value) : m_type(Type::Double) { m_value.m_double = value; }
+	explicit Value(const int32_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	explicit Value(const uint32_t value) : m_type(Type::Integer)
+	{
+		m_value.m_integer = static_cast<int64_t>(value);
+	}
+	explicit Value(const int16_t value) : m_type(Type::Integer) { m_value.m_integer = value; }
+	explicit Value(const uint16_t value) : m_type(Type::Integer)
+	{
+		m_value.m_integer = static_cast<int64_t>(value);
+	}
 
-	Value(const bool value) : m_type(Type::Boolean) { m_value.m_boolean = value; }
+	explicit Value(const float value) : m_type(Type::Double) { m_value.m_double = value; }
+	explicit Value(const double value) : m_type(Type::Double) { m_value.m_double = value; }
 
-	Value(std::string* value) : m_type(Type::String) { m_value.m_string = value; }
+	explicit Value(const bool value) : m_type(Type::Boolean) { m_value.m_boolean = value; }
 
-	Value(Object* value) : m_type(Type::Object) { m_value.m_object = value; }
+	explicit Value(std::string* value) : m_type(Type::String) { m_value.m_string = value; }
 
-	Value(Array* value) : m_type(Type::Array) { m_value.m_array = value; }
+	explicit Value(Object* value) : m_type(Type::Object) { m_value.m_object = value; }
 
-	Value(const Type type) : m_type(type) {}
+	explicit Value(Array* value) : m_type(Type::Array) { m_value.m_array = value; }
+
+	explicit Value(const Type type) : m_type(type) {}
 
 	// Getters
-	Type type() const { return m_type; }
+	Type type() const noexcept { return m_type; }
 
-	ValueType& value() { return m_value; }
-	const ValueType& value() const { return m_value; }
+	ValueType& value() noexcept { return m_value; }
+	const ValueType& value() const noexcept { return m_value; }
 
-	int64_t as_int() const { return m_value.m_integer; }
-	double as_double() const { return m_value.m_double; }
-	bool as_bool() const { return m_value.m_boolean; }
-	std::string& as_string() { return *m_value.m_string; }
-	const std::string& as_string() const { return *m_value.m_string; }
-	Object& as_object() { return *m_value.m_object; }
-	const Object& as_object() const { return *m_value.m_object; }
-	Array& as_array() { return *m_value.m_array; }
-	const Array& as_array() const { return *m_value.m_array; }
+	int64_t as_int() const noexcept { return m_value.m_integer; }
+	double as_double() const noexcept { return m_value.m_double; }
+	bool as_bool() const noexcept { return m_value.m_boolean; }
+	std::string& as_string() noexcept { return *m_value.m_string; }
+	const std::string& as_string() const noexcept { return *m_value.m_string; }
+	Object& as_object() noexcept { return *m_value.m_object; }
+	const Object& as_object() const noexcept { return *m_value.m_object; }
+	Array& as_array() noexcept { return *m_value.m_array; }
+	const Array& as_array() const noexcept { return *m_value.m_array; }
 
 	// TODO: Make everything noexcept
 	// Inline these?
-	bool is_empty() const { return m_type == Type::Empty; }
-	bool has_value() const { return m_type != Type::Empty; }
+	bool is_empty() const noexcept { return m_type == Type::Empty; }
+	bool has_value() const noexcept { return m_type != Type::Empty; }
 
-	bool is_null() const { return m_type == Type::Null; }
-	bool is_undefined() const { return m_type == Type::Undefined; }
-	bool is_number() const { return (m_type == Type::Integer || m_type == Type::Double); }
-	bool is_bool() const { return m_type == Type::Boolean; }
-	bool is_string() const { return m_type == Type::String; }
-	bool is_object() const { return m_type == Type::Object; }
-	bool is_array() const { return m_type == Type::Array; }
+	bool is_null() const noexcept { return m_type == Type::Null; }
+	bool is_undefined() const noexcept { return m_type == Type::Undefined; }
+	bool is_number() const noexcept { return (m_type == Type::Integer || m_type == Type::Double); }
+	bool is_bool() const noexcept { return m_type == Type::Boolean; }
+	bool is_string() const noexcept { return m_type == Type::String; }
+	bool is_object() const noexcept { return m_type == Type::Object; }
+	bool is_array() const noexcept { return m_type == Type::Array; }
 
-	Value value_or(const Value other)
+	Value value_or(const Value other) const noexcept
 	{
 		if(is_empty())
 			return other;
