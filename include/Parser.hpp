@@ -11,14 +11,10 @@ namespace OK
 class Parser final
 {
 public:
-	Parser(const std::string_view str) : m_str(str) {}
-
-	Object parse();
+	static std::optional<Object> parse(const std::string_view);
 	static std::optional<Value> parse_value(const std::string_view);
 
 private:
-	std::string_view m_str;
-
 	static std::optional<int64_t> parse_int(const std::string_view);
 	static std::optional<double> parse_double(const std::string_view);
 	static std::optional<bool> parse_bool(const std::string_view);

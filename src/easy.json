@@ -1,5 +1,9 @@
 {
 	"a": 42,
 	"b": -69,
-	"c": "Spaces are removed here?"
+	"c": "Spaces are removed here?",
+	"bar": true,
+	"d": 3.141592653589793,
+	"e": 6.942e4,
+	"foo": false
 }

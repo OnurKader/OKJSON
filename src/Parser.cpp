@@ -24,25 +24,25 @@ OK::Value get_value_after_colon(const std::string_view str_view);
 
 namespace OK
 {
-Object Parser::parse()
+std::optional<Object> Parser::parse(const std::string_view str_view)
 {
-	assert(!m_str.empty());
+	assert(!str_view.empty());
 	// Don't allow [] JSON yet
-	assert(m_str.starts_with('{'));
+	assert(str_view.starts_with('{'));
 
 	Object result;
 	std::string_view property_name;
 
-	for(size_t i = 0ULL; i < m_str.size(); ++i)
+	for(size_t i = 0ULL; i < str_view.size(); ++i)
 	{
-		switch(m_str[i])
+		switch(str_view[i])
 		{
 			case '\"':
 			{
-				const size_t next_quote = m_str.find('\"', i + 1ULL);
-				if(next_quote == m_str.npos)
+				const size_t next_quote = str_view.find('\"', i + 1ULL);
+				if(next_quote == str_view.npos)
 					ASSERT_NOT_REACHED();
-				property_name = get_variable_name_in_quotes(m_str.substr(i));
+				property_name = get_variable_name_in_quotes(str_view.substr(i));
 
 				// Move forward to the closing quote
 				i = next_quote;
@@ -50,7 +50,7 @@ Object Parser::parse()
 			}
 			case ':':
 			{
-				const auto val = get_value_after_colon(m_str.substr(i));
+				const auto val = get_value_after_colon(str_view.substr(i));
 				const Value value_to_store = val.has_value() ? val : undefined();
 				result.set(property_name, value_to_store);
 				break;
@@ -63,6 +63,8 @@ Object Parser::parse()
 
 std::optional<Value> Parser::parse_value(const std::string_view str_view)
 {
+	fmt::print("Value rsed: \"{}\"\n", str_view);
+
 	if(auto opt = parse_int(str_view); opt.has_value())
 		return Value(opt.value());
 
@@ -130,13 +132,18 @@ std::optional<std::string*> Parser::parse_string(const std::string_view str_view
 {
 	// Maybe check escape sequences \", \n etc...
 	if(str_view.starts_with('\"') && str_view.ends_with('\"'))
-		return new std::string(str_view);
+	{
+		const std::string_view temp {str_view.substr(1ULL, str_view.size() - 2ULL)};
+		return new std::string(temp);
+	}
 
 	return std::nullopt;
 }
 
 std::optional<Object*> Parser::parse_object(const std::string_view str_view)
 {
+	ASSERT_NOT_REACHED();
+	// WARN: NOT_IMPLEMENTED
 	// TODO: Maybe deal with parse_value first
 	if(!str_view.starts_with('{') || !str_view.ends_with('}'))
 		return std::nullopt;
@@ -181,7 +188,16 @@ std::string_view get_variable_name_in_quotes(const std::string_view str_view)
 
 OK::Value get_value_after_colon(const std::string_view str_view)
 {
-	const auto comma_or_brace_index = str_view.find_first_of(",}", 1ULL);
-	const std::string_view colon_value_str = str_view.substr(1ULL, comma_or_brace_index - 1ULL);
+	// FIXME: Change these ones to proper space ignoring code!
+
+	// BUG: This breaks objects, {"a": {"owo": 12}}
+	//                                will detect ^ as the ending, but it's not
+	const auto first_non_space = str_view.find_first_not_of(" \t\n", 1ULL);
+	const auto comma_or_brace_index = str_view.find_first_of(",}\n", first_non_space);
+	if(comma_or_brace_index == str_view.npos)
+		ASSERT_NOT_REACHED();
+
+	const std::string_view colon_value_str =
+		str_view.substr(first_non_space, comma_or_brace_index - first_non_space);
 	return OK::Parser::parse_value(colon_value_str).value_or(OK::Value());
 }
