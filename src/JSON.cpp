@@ -25,7 +25,7 @@ int main()
 	fmt::print("Read JSON as:\n{}\n", json_data);
 
 	OK::Object json_object = OK::Parser::parse(json_data).value_or(OK::Object());
-	fmt::print("Parsed Object:\n{}\n", json_object);
+	fmt::print("\nParsed Object:\n{}\n", json_object);
 
 	return 0;
 }

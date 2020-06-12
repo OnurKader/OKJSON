@@ -64,7 +64,7 @@ std::optional<Object> Parser::parse(const std::string_view str_view)
 
 std::optional<Value> Parser::parse_value(const std::string_view str_view)
 {
-	fmt::print("Value Parsed: \"{}\"\n", str_view);
+	fmt::print("Value Parsed: {}\n", str_view);
 
 	if(auto opt = parse_int(str_view); opt.has_value())
 		return Value(opt.value());
