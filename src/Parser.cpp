@@ -5,7 +5,7 @@
 #include <cctype>
 #include <string>
 
-#define ASSERT_NOT_REACHED assert(false);
+#define ASSERT_NOT_REACHED() assert(false);
 
 /**
  * @brief This function extracts the identifier name in double quotes
@@ -13,25 +13,25 @@
  * @param open_quote_index is the index of the opening quote
  * @return the identifier inside the quotes
  */
-std::string_view get_variable_name_in_quotes(const std::string_view, const size_t open_quote_index);
+std::string_view get_variable_name_in_quotes(const std::string_view);
 
 /*!
  * \brief Gets the value after a colon
  * \param str_view The view to extract the value from
  * \return the value taken after the colon
  */
-inline OK::Value get_value_after_colon(const std::string_view str_view, const size_t colon_index);
+OK::Value get_value_after_colon(const std::string_view str_view);
 
 namespace OK
 {
 Object Parser::parse()
 {
 	assert(!m_str.empty());
+	// Don't allow [] JSON yet
 	assert(m_str.starts_with('{'));
 
 	Object result;
 	std::string_view property_name;
-	Value value_to_store;
 
 	for(size_t i = 0ULL; i < m_str.size(); ++i)
 	{
@@ -41,8 +41,8 @@ Object Parser::parse()
 			{
 				const size_t next_quote = m_str.find('\"', i + 1ULL);
 				if(next_quote == m_str.npos)
-					ASSERT_NOT_REACHED;
-				property_name = get_variable_name_in_quotes(m_str, i);
+					ASSERT_NOT_REACHED();
+				property_name = get_variable_name_in_quotes(m_str.substr(i));
 
 				// Move forward to the closing quote
 				i = next_quote;
@@ -50,7 +50,8 @@ Object Parser::parse()
 			}
 			case ':':
 			{
-				value_to_store = get_value_after_colon(m_str, i);
+				const auto val = get_value_after_colon(m_str.substr(i));
+				const Value value_to_store = val.has_value() ? val : undefined();
 				result.set(property_name, value_to_store);
 				break;
 			}
@@ -60,7 +61,7 @@ Object Parser::parse()
 	return result;
 }
 
-Value Parser::parse_value(const std::string_view str_view)
+std::optional<Value> Parser::parse_value(const std::string_view str_view)
 {
 	if(auto opt = parse_int(str_view); opt.has_value())
 		return Value(opt.value());
@@ -82,7 +83,7 @@ Value Parser::parse_value(const std::string_view str_view)
 
 	fmt::print(stderr, "AAAHHH! Unrecognized value!\n");
 
-	return undefined();
+	return std::nullopt;
 }
 
 std::optional<int64_t> Parser::parse_int(const std::string_view str_view)
@@ -137,6 +138,10 @@ std::optional<std::string*> Parser::parse_string(const std::string_view str_view
 std::optional<Object*> Parser::parse_object(const std::string_view str_view)
 {
 	// TODO: Maybe deal with parse_value first
+	if(!str_view.starts_with('{') || !str_view.ends_with('}'))
+		return std::nullopt;
+
+	// TODO: Change Parser::parse() to actually return an optional, and call it here.
 	return std::nullopt;
 }
 
@@ -156,8 +161,9 @@ std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 		const size_t seperator_index = str_view.find_first_of(",]", i + 1ULL);
 		std::string_view value_seperated_by_comma = str_view.substr(i, seperator_index - 1ULL);
 		// Qt Creator doesn't support this syntax
-		if(const Value value = parse_value(value_seperated_by_comma); !value.is_undefined())
-			values.push_back(value);	// emplace_back with value? Copy const?
+		// ???: I'm talking about the undefined -> empty thing here
+		if(const auto value = parse_value(value_seperated_by_comma); !value)
+			values.push_back(*value);	 // emplace_back with value? Copy const?
 		else
 			return std::nullopt;
 	}
@@ -167,19 +173,15 @@ std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 
 }	 // namespace OK
 
-// Replace colon_index with just str_view but it's subtsringed
-inline OK::Value get_value_after_colon(const std::string_view str_view, const size_t colon_index)
+std::string_view get_variable_name_in_quotes(const std::string_view str_view)
 {
-	// TODO: Add object parsing
-	const auto comma_or_brace_index = str_view.find_first_of(",}", colon_index + 1ULL);
-	const std::string_view colon_value_str =
-		str_view.substr(colon_index + 1ULL, comma_or_brace_index - colon_index - 1ULL);
-	return OK::Parser::parse_value(colon_value_str);
+	const auto close_quote_index = str_view.find('"', 1ULL);
+	return str_view.substr(1ULL, close_quote_index - 1ULL);
 }
 
-std::string_view get_variable_name_in_quotes(const std::string_view str_view,
-											 const size_t open_quote_index)
+OK::Value get_value_after_colon(const std::string_view str_view)
 {
-	const auto close_quote_index = str_view.find('"', open_quote_index + 1ULL);
-	return str_view.substr(open_quote_index + 1ULL, close_quote_index - open_quote_index - 1ULL);
+	const auto comma_or_brace_index = str_view.find_first_of(",}", 1ULL);
+	const std::string_view colon_value_str = str_view.substr(1ULL, comma_or_brace_index - 1ULL);
+	return OK::Parser::parse_value(colon_value_str).value_or(OK::Value());
 }

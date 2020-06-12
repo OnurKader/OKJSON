@@ -91,9 +91,10 @@ public:
 	Array& as_array() { return *m_value.m_array; }
 	const Array& as_array() const { return *m_value.m_array; }
 
+	// TODO: Make everything noexcept
 	// Inline these?
 	bool is_empty() const { return m_type == Type::Empty; }
-	bool has_value() const { return m_type == Type::Empty; }
+	bool has_value() const { return m_type != Type::Empty; }
 
 	bool is_null() const { return m_type == Type::Null; }
 	bool is_undefined() const { return m_type == Type::Undefined; }

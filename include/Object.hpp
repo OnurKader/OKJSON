@@ -49,6 +49,8 @@ public:
 	std::string to_string() const;
 
 private:
+	// FR: Actually just hold an std::vector of std::pair<std::string, Value>, would be more
+	// efficient and it would keep the users order
 	std::unordered_map<Property, Value> m_value_map {};
 
 	void free_memory_if_pointer(const Property property_name)

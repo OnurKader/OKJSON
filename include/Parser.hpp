@@ -14,7 +14,7 @@ public:
 	Parser(const std::string_view str) : m_str(str) {}
 
 	Object parse();
-	static Value parse_value(const std::string_view);
+	static std::optional<Value> parse_value(const std::string_view);
 
 private:
 	std::string_view m_str;
