@@ -50,8 +50,9 @@ std::optional<Object> Parser::parse(const std::string_view str_view)
 			}
 			case ':':
 			{
-				const auto val = get_value_after_colon(str_view.substr(i));
-				const Value value_to_store = val.has_value() ? val : undefined();
+				const Value value_to_store = get_value_after_colon(str_view.substr(i));
+				if(value_to_store.is_empty())
+					return std::nullopt;
 				result.set(property_name, value_to_store);
 				break;
 			}
@@ -63,7 +64,7 @@ std::optional<Object> Parser::parse(const std::string_view str_view)
 
 std::optional<Value> Parser::parse_value(const std::string_view str_view)
 {
-	fmt::print("Value rsed: \"{}\"\n", str_view);
+	fmt::print("Value Parsed: \"{}\"\n", str_view);
 
 	if(auto opt = parse_int(str_view); opt.has_value())
 		return Value(opt.value());
@@ -95,7 +96,13 @@ std::optional<int64_t> Parser::parse_int(const std::string_view str_view)
 	str_view.copy(buff, str_view.size());
 	buff[str_view.size()] = '\0';
 	char* end;
-	const int64_t result = std::strtoll(buff, &end, 10);
+	int64_t result;
+	if(str_view.starts_with("0x"))
+		result = std::strtoll(buff, &end, 16);
+	else if(str_view.starts_with('0'))
+		result = std::strtoll(buff, &end, 8);
+	else
+		result = std::strtoll(buff, &end, 10);
 
 	if(*end == 0)
 		return result;
@@ -142,14 +149,15 @@ std::optional<std::string*> Parser::parse_string(const std::string_view str_view
 
 std::optional<Object*> Parser::parse_object(const std::string_view str_view)
 {
-	ASSERT_NOT_REACHED();
-	// WARN: NOT_IMPLEMENTED
-	// TODO: Maybe deal with parse_value first
-	if(!str_view.starts_with('{') || !str_view.ends_with('}'))
+	if(!str_view.starts_with('{'))
 		return std::nullopt;
 
-	// TODO: Change Parser::parse() to actually return an optional, and call it here.
-	return std::nullopt;
+	// BUG: str_view probably doesn't have the closing brace
+	const auto obj = parse(str_view);
+	if(!obj)
+		return std::nullopt;
+
+	return new Object(*obj);
 }
 
 std::optional<Array*> Parser::parse_array(const std::string_view str_view)
