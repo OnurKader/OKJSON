@@ -34,3 +34,15 @@ private:
 };
 
 }	 // namespace OK
+
+template<>
+struct fmt::formatter<OK::Array>
+{
+	constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+	template<typename FormatContext>
+	auto format(const OK::Array& arr, FormatContext& fc)
+	{
+		return format_to(fc.out(), "{}", arr.to_string());
+	}
+};

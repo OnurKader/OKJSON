@@ -24,6 +24,10 @@ void Array::clear() { m_values.clear(); }
 Value& Array::operator[](const size_t index) { return m_values[index]; }
 const Value& Array::operator[](const size_t index) const { return m_values[index]; }
 
-std::string Array::to_string() const { return "Array"; }
+std::string Array::to_string() const
+{
+	// TODO: Array printing
+	return "Array";
+}
 
 }	 // namespace OK

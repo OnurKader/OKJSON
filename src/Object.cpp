@@ -2,6 +2,20 @@
 
 namespace OK
 {
+Value& Object::get(const std::string& property_name)
+{
+	const auto iter = find_property_in_vector(property_name);
+	assert(("Couldn't find property in object", iter != m_values.end()));
+	return iter->second;
+}
+
+const Value& Object::get(const std::string& property_name) const
+{
+	const auto iter = find_property_in_vector(property_name);
+	assert(("Couldn't find property in object", iter != m_values.end()));
+	return iter->second;
+}
+
 std::string Object::to_string() const
 {
 	fmt::memory_buffer buff;
@@ -10,7 +24,7 @@ std::string Object::to_string() const
 
 	fmt::format_to(buff, "{}\n", '{');
 
-	for(const auto& [key, value]: m_value_map)
+	for(const auto& [key, value]: m_values)
 	{
 		// FIXME: Object printing, somehow keep the tab info, the depth/level
 		fmt::format_to(buff, "\t\"{}\": {},\n", key, value);

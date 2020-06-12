@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Array.hpp"
-#include "Property.hpp"
 #include "Value.hpp"
 
-#include <unordered_map>
+#include <cassert>
 #include <vector>
 
 namespace OK
@@ -12,52 +11,74 @@ namespace OK
 class Object final
 {
 public:
-	// FIXME: delete all the shit you've allocated when setting
-	void set(const Property property_name, const Value value)
+	void set(const std::string property_name, const Value value)
 	{
 		free_memory_if_pointer(property_name);
-		m_value_map[property_name] = value;
+		m_values.emplace_back(property_name, value);
 	}
 
-	void set(const Property property_name, const std::string str)
+	void set(const std::string_view property_name, const Value value)
+	{
+		std::string property_name_(property_name);
+		free_memory_if_pointer(property_name_);
+		m_values.emplace_back(property_name_, value);
+	}
+
+	void set(const std::string property_name, const std::string str)
 	{
 		free_memory_if_pointer(property_name);
 		std::string* wow_this_code_sucks = new std::string(str);
-		m_value_map[property_name] = Value(wow_this_code_sucks);
+		m_values.emplace_back(property_name, Value(wow_this_code_sucks));
 	}
 
-	void set(const std::string_view t_property_name, const Value value)
-	{
-		std::string property_name(t_property_name);
-		free_memory_if_pointer(property_name);
-		m_value_map[property_name] = value;
-	}
-
-	void set(const Property property_name, const Object obj)
+	void set(const std::string property_name, const Object obj)
 	{
 		free_memory_if_pointer(property_name);
 		Object* wow_this_sucks_as_well = new Object(obj);
-		m_value_map[property_name] = Value(wow_this_sucks_as_well);
+		m_values.emplace_back(property_name, Value(wow_this_sucks_as_well));
 	}
 
-	Value& get(const Property property_name) { return m_value_map.at(property_name); }
-	const Value& get(const Property property_name) const { return m_value_map.at(property_name); }
+	Value& get(const std::string& property_name);
 
-	Value& operator[](const Property property_name) { return get(property_name); }
-	const Value& operator[](const Property property_name) const { return get(property_name); }
+	const Value& get(const std::string& property_name) const;
+
+	Value& operator[](const std::string& property_name) { return get(property_name); }
+	const Value& operator[](const std::string& property_name) const { return get(property_name); }
+
+	auto begin() const { return m_values.begin(); }
 
 	std::string to_string() const;
 
 private:
-	// FR: Actually just hold an std::vector of std::pair<std::string, Value>, would be more
-	// efficient and it would keep the users order
-	std::unordered_map<Property, Value> m_value_map {};
+	std::vector<std::pair<std::string, Value>> m_values {};
 
-	void free_memory_if_pointer(const Property property_name)
+	decltype(m_values)::iterator find_property_in_vector(const std::string& property_name)
 	{
-		if(m_value_map.contains(property_name))
+		return std::find_if(m_values.begin(), m_values.end(), [&property_name](const auto& pair) {
+			return pair.first == property_name;
+		});
+	}
+
+	const decltype(m_values)::const_iterator find_property_in_vector(
+		const std::string& property_name) const
+	{
+		return std::find_if(m_values.cbegin(), m_values.cend(), [&property_name](const auto& pair) {
+			return pair.first == property_name;
+		});
+	}
+
+	bool vector_contains_property(const std::string& property_name) const
+	{
+		return (find_property_in_vector(property_name) != m_values.cend());
+	}
+
+	void free_memory_if_pointer(const std::string& property_name)
+	{
+		if(vector_contains_property(property_name))
 		{
-			Value& temp = m_value_map[property_name];
+			Value& temp = get(property_name);
+			// FIXME: Actually bring back ~Value(), or have operator= overloaded to do this so if we
+			// reassign a Value, it's not leaked
 			switch(temp.type())
 			{
 				case Type::String: delete temp.value().m_string; break;

@@ -1,11 +1,14 @@
 {
 	"a": 42,
 	"b": -69,
-	"c": "Spaces are removed here?",
+	"c": "\"Cute string\" said Onur",
 	"bar": true,
 	"d": 3.141592653589793,
 	"e": 6.942e4,
 	"foo": false,
+	"simple_array": [1, 2, 3],
+	"complex_array": [-1, 2.3, "OwO", true],
+	"hard_array": [-2, "Hard", [1, 2, 3], false, null],
 	"hex": 0x41,
-	"octal": 033,
+	"octal": 033
 }
