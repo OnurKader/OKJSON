@@ -10,7 +10,7 @@ namespace OK
 class Object;
 class Array;
 
-// Maybe get rid of Empty, and just start everything with Undefined
+// MAYBE: get rid of Empty, and just start everything with Undefined
 enum class Type : uint8_t
 {
 	Empty,
@@ -31,7 +31,7 @@ public:
 		int64_t m_integer;
 		double m_double;
 		bool m_boolean;
-		// Maybe shared_ptr?
+		// MAYBE: shared_ptr?
 		std::string* m_string;
 		Object* m_object;
 		Array* m_array;

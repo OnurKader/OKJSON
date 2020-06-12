@@ -27,7 +27,17 @@ const Value& Array::operator[](const size_t index) const { return m_values[index
 std::string Array::to_string() const
 {
 	// TODO: Array printing
-	return "Array";
+	fmt::memory_buffer buff;
+	buff.reserve(64ULL);
+
+	fmt::format_to(buff, "[");
+
+	// MAYBE: use auto&&
+	for(const auto& value: m_values)
+		fmt::format_to(buff, "{}, ", value);
+
+	fmt::format_to(buff, "]");
+	return fmt::to_string(buff);
 }
 
 }	 // namespace OK

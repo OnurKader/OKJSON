@@ -137,7 +137,7 @@ std::optional<bool> Parser::parse_bool(const std::string_view str_view)
 
 std::optional<std::string*> Parser::parse_string(const std::string_view str_view)
 {
-	// Maybe check escape sequences \", \n etc...
+	// MAYBE: check escape sequences \", \n etc...
 	if(str_view.starts_with('\"') && str_view.ends_with('\"'))
 	{
 		const std::string_view temp {str_view.substr(1ULL, str_view.size() - 2ULL)};
@@ -170,13 +170,12 @@ std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 		static_cast<size_t>(std::count(str_view.cbegin(), str_view.cend(), ','));
 	std::vector<Value> values;
 	values.reserve(comma_count + 1ULL);
-	// Maybe just std::all_of() with !parse_value().is_undefined()?
+	// MAYBE: just std::all_of() with !parse_value().is_undefined()?
 	for(size_t i = 1ULL; i < str_view.size(); ++i)
 	{
 		const size_t seperator_index = str_view.find_first_of(",]", i + 1ULL);
 		std::string_view value_seperated_by_comma = str_view.substr(i, seperator_index - 1ULL);
 		// Qt Creator doesn't support this syntax
-		// ???: I'm talking about the undefined -> empty thing here
 		if(const auto value = parse_value(value_seperated_by_comma); !value)
 			values.push_back(*value);	 // emplace_back with value? Copy const?
 		else
@@ -193,6 +192,9 @@ std::string_view get_variable_name_in_quotes(const std::string_view str_view)
 	const auto close_quote_index = str_view.find('"', 1ULL);
 	return str_view.substr(1ULL, close_quote_index - 1ULL);
 }
+
+// FR: Add some helper functions which extract individual data like a string after a colon or an
+// object or an array
 
 OK::Value get_value_after_colon(const std::string_view str_view)
 {

@@ -10,7 +10,7 @@ namespace OK
 class Array final
 {
 public:
-	// Maybe a variadic template?
+	// MAYBE: a variadic template?
 	Array(const std::initializer_list<Value>);
 	Array(std::vector<Value>&&);
 
