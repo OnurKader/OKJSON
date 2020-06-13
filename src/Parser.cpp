@@ -7,6 +7,8 @@
 
 #define ASSERT_NOT_REACHED() assert(false);
 
+std::optional<std::string_view> extract_string_from_view(const std::string_view str_view);
+std::optional<std::string_view> extract_array_from_view(const std::string_view str_view);
 /**
  * @brief This function extracts the identifier name in double quotes
  * @param str_view The view to extract from
@@ -52,7 +54,8 @@ std::optional<Object> Parser::parse(const std::string_view str_view)
 			{
 				const Value value_to_store = get_value_after_colon(str_view.substr(i));
 				if(value_to_store.is_empty())
-					return std::nullopt;
+					// return std::nullopt;
+					break;
 				result.set(property_name, value_to_store);
 				break;
 			}
@@ -76,7 +79,7 @@ std::optional<Value> Parser::parse_value(const std::string_view str_view)
 		return Value(opt.value());
 
 	if(auto opt = parse_null(str_view); opt.has_value())
-		return opt.value();
+		return opt.value();	   // Looks odd
 
 	if(auto opt = parse_string(str_view); opt.has_value())
 		return Value(opt.value());
@@ -87,7 +90,7 @@ std::optional<Value> Parser::parse_value(const std::string_view str_view)
 	if(auto opt = parse_array(str_view); opt.has_value())
 		return Value(opt.value());
 
-	fmt::print(stderr, "AAAHHH! Unrecognized value!\n");
+	fmt::print(stderr, "AAAHHH! Unrecognized value! `{}`\n", str_view);
 
 	return std::nullopt;
 }
