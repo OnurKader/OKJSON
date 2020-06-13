@@ -66,7 +66,7 @@ std::optional<Object> Parser::parse(const std::string_view str_view)
 
 std::optional<Value> Parser::parse_value(const std::string_view str_view)
 {
-	fmt::print("Value Parsed: {}\n", str_view);
+	fmt::print("Value Parsed: `{}`\n", str_view);
 
 	if(auto opt = parse_int(str_view); opt.has_value())
 		return Value(opt.value());
@@ -245,9 +245,6 @@ std::optional<std::string_view> extract_array_from_view(const std::string_view s
 
 OK::Value get_value_after_colon(const std::string_view str_view)
 {
-	// NOTE: The string view here is ":\s*.+"
-	// FIXME: Do some special parsing for { and [
-
 	// BUG: This breaks objects, {"a": {"owo": 12}}
 	//                                will detect ^ as the ending, but it's not
 
@@ -266,6 +263,8 @@ OK::Value get_value_after_colon(const std::string_view str_view)
 		}
 		case '[':
 		{
+			// TODO: Fix Array string parsing when there is another array or an object, the first
+			// non whitespace character is special, do a switch like in here
 			if(const auto array = extract_array_from_view(str_view.substr(first_non_space_index));
 			   array.has_value())
 				colon_value_str = *array;
@@ -273,6 +272,7 @@ OK::Value get_value_after_colon(const std::string_view str_view)
 		}
 		case '{':
 		{
+			// TODO: Object string parsing
 			break;
 		}
 		default:

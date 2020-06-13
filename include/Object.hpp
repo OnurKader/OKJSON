@@ -11,6 +11,8 @@ namespace OK
 class Object final
 {
 public:
+	// FIXME: Do not emplace_back, check if vector already contains it, if so update, otherwise
+	// emplace_back
 	void set(const std::string property_name, const Value value)
 	{
 		free_memory_if_pointer(property_name);
@@ -50,17 +52,17 @@ public:
 	std::string to_string() const;
 
 private:
-	std::vector<std::pair<std::string, Value>> m_values {};
+	using ObjectType = std::vector<std::pair<std::string, Value>>;
+	ObjectType m_values {};
 
-	decltype(m_values)::iterator find_property_in_vector(const std::string& property_name)
+	ObjectType::iterator find_property_in_vector(const std::string& property_name)
 	{
 		return std::find_if(m_values.begin(), m_values.end(), [&property_name](const auto& pair) {
 			return pair.first == property_name;
 		});
 	}
 
-	const decltype(m_values)::const_iterator find_property_in_vector(
-		const std::string& property_name) const
+	ObjectType::const_iterator find_property_in_vector(const std::string& property_name) const
 	{
 		return std::find_if(m_values.cbegin(), m_values.cend(), [&property_name](const auto& pair) {
 			return pair.first == property_name;
