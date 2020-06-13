@@ -53,10 +53,8 @@ std::optional<Object> Parser::parse(const std::string_view str_view)
 			case ':':
 			{
 				const Value value_to_store = get_value_after_colon(str_view.substr(i));
-				if(value_to_store.is_empty())
-					// return std::nullopt;
-					break;
-				result.set(property_name, value_to_store);
+				if(!value_to_store.is_empty())
+					result.set(property_name, value_to_store);
 				break;
 			}
 		}

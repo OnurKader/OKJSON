@@ -24,13 +24,14 @@ std::string Object::to_string() const
 
 	fmt::format_to(buff, "{}\n", '{');
 
-	for(const auto& [key, value]: m_values)
+	for(size_t i = 0ULL; i < m_values.size() - 1ULL; ++i)
 	{
-		// FIXME: Object printing, somehow keep the tab info, the depth/level
+		const auto& [key, value] = m_values[i];
 		fmt::format_to(buff, "\t\"{}\": {},\n", key, value);
 	}
 
-	fmt::format_to(buff, "{}", '}');
+	const auto& [last_key, last_value] = m_values.back();
+	fmt::format_to(buff, "\t\"{}\": {}\n{}", last_key, last_value, '}');
 
 	return fmt::to_string(buff);
 }

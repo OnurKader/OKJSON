@@ -32,11 +32,10 @@ std::string Array::to_string() const
 
 	fmt::format_to(buff, "[");
 
-	// MAYBE: use auto&&
-	for(const auto& value: m_values)
-		fmt::format_to(buff, "{}, ", value);
+	for(size_t i = 0ULL; i < m_values.size() - 1ULL; ++i)
+		fmt::format_to(buff, "{}, ", m_values[i]);
 
-	fmt::format_to(buff, "]");
+	fmt::format_to(buff, "{}]", m_values.back());
 	return fmt::to_string(buff);
 }
 
