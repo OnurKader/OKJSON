@@ -1,5 +1,7 @@
 {
 	"a": 42,
 	"str": "Hello There, \"General Kenobi\", you're a bold one!",
-	"arr": [1, 2, -3, 4.2, true, null]
+	"primitives": [1, 2, -3, 4.2, true, null, -0x3, "Simple_array"],
+	"arr": [1, 2, -1, 3.14, false, "Hey, this doesn't work!", null],
+	"oof": [1, [0.1, 0.2], "OwO, what's this?"]
 }
