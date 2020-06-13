@@ -91,7 +91,7 @@ std::optional<Value> Parser::parse_value(const std::string_view str_view)
 
 std::optional<int64_t> Parser::parse_int(const std::string_view str_view)
 {
-	assert(str_view.size() < 128ULL);
+	assert(str_view.size() < 128ULL || !str_view.empty());
 	char buff[128ULL];
 	str_view.copy(buff, str_view.size());
 	buff[str_view.size()] = '\0';
@@ -195,19 +195,52 @@ std::string_view get_variable_name_in_quotes(const std::string_view str_view)
 
 // FR: Add some helper functions which extract individual data like a string after a colon or an
 // object or an array
+std::optional<std::string_view> get_string_after_colon(const std::string_view str_view)
+{
+	const size_t first_quote_index = str_view.find('"');
+	bool in_quotes = true;
+	for(size_t i = first_quote_index + 1ULL; i < str_view.size(); ++i)
+	{
+		switch(str_view[i])
+		{
+			case '\\': ++i; continue;
+			case '"': in_quotes = !in_quotes; break;
+		}
+		if(!in_quotes)
+			return str_view.substr(first_quote_index, i - 1ULL);
+	}
+	return std::nullopt;
+}
 
 OK::Value get_value_after_colon(const std::string_view str_view)
 {
-	// FIXME: Do some special parsing for " and { and [
+	// NOTE: The string view here is ":\s*.+"
+	// FIXME: Do some special parsing for { and [
 
 	// BUG: This breaks objects, {"a": {"owo": 12}}
 	//                                will detect ^ as the ending, but it's not
-	const auto first_non_space = str_view.find_first_not_of(" \t\n", 1ULL);
-	const auto comma_or_brace_index = str_view.find_first_of(",}\n", first_non_space);
-	if(comma_or_brace_index == str_view.npos)
-		ASSERT_NOT_REACHED();
 
-	const std::string_view colon_value_str =
-		str_view.substr(first_non_space, comma_or_brace_index - first_non_space);
+	std::string_view colon_value_str {"\"UNIMPLEMENTED\""};
+
+	const auto first_non_space_index = str_view.find_first_not_of(" \t\n", 1ULL);
+	const char first_non_space_char = str_view[first_non_space_index];
+	switch(first_non_space_char)
+	{
+		case '"':
+			colon_value_str = get_string_after_colon(str_view).value_or(std::string_view());
+			break;
+		case '[': break;
+		case '{': break;
+		default:
+		{
+			const auto comma_or_brace_index = str_view.find_first_of(",}\n", first_non_space_index);
+			if(comma_or_brace_index == str_view.npos)
+				ASSERT_NOT_REACHED();
+
+			colon_value_str = str_view.substr(first_non_space_index,
+											  comma_or_brace_index - first_non_space_index);
+		}
+	}
+
 	return OK::Parser::parse_value(colon_value_str).value_or(OK::Value());
 }

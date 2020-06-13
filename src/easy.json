@@ -11,4 +11,10 @@
 	"simple_array": [1, 2, 3],
 	"complex_array": [-1, 2.3, "OwO", true],
 	"hard_array": [-2, "Hard", [1, 2, 3], false, null],
+	"simple_obj": {"try": 31, "this": -6.9, "boo": false},
+	"complex_obj": {"aar": [1, true, [0, -4, 5], "Yeah"]},
+	"hard_obj": {
+		"oof": {"oz": "Magic", "33": [-3, null]},
+		"yeah": [{"a": 22, "b": false}, 2222, -99]
+	}
 }

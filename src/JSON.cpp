@@ -6,8 +6,7 @@
 
 int main()
 {
-	//	const std::string json_data = read_file_and_strip_whitespace("easy.json");
-	std::ifstream json_file("easy.json");
+	std::ifstream json_file("array.json");
 	if(!json_file)
 	{
 		fmt::print(stderr, "Couldn't open JSON\n");
@@ -22,10 +21,10 @@ int main()
 
 	json_file.read(json_data.data(), static_cast<ssize_t>(file_size));
 
-	fmt::print("Read JSON as:\n{}\n", json_data);
+	fmt::print("Read JSON as:\n\033[36;1m{}\033[m\n", json_data);
 
 	OK::Object json_object = OK::Parser::parse(json_data).value_or(OK::Object());
-	fmt::print("\nParsed Object:\n{}\n", json_object);
+	fmt::print("\nParsed Object:\n\033[32;1m{}\033[m\n", json_object);
 
 	return 0;
 }
