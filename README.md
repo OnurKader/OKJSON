@@ -41,41 +41,42 @@ Value Parsed: 6.942e4
 Value Parsed: false
 Value Parsed: 0x41
 Value Parsed: 033
+Value Parsed: [1, 2, 3]
+Value Parsed: 1
+Value Parsed: 2
+Value Parsed: 3
+Value Parsed: [-1, 2.3, "OwO", true]
+Value Parsed: -1
+Value Parsed: 2.3
+Value Parsed: "OwO"
+Value Parsed: true
+Value Parsed: [-2, "Hard", [1, 2, 3], false, null]
+Value Parsed: -2
+Value Parsed: "Hard"
+Value Parsed: [1
+AAAHHH! Unrecognized value! `[1`
+AAAHHH! Unrecognized value! `[-2, "Hard", [1, 2, 3], false, null]`
+Value Parsed: "UNIMPLEMENTED OR WRONG SYNTAX"
 Value Parsed: 31
 Value Parsed: -6.9
 Value Parsed: false
+Value Parsed: "UNIMPLEMENTED OR WRONG SYNTAX"
+Value Parsed: [1, true, [0, -4, 5], "Yeah"]
+Value Parsed: 1
+Value Parsed: true
+Value Parsed: [0
+AAAHHH! Unrecognized value! `[0`
+AAAHHH! Unrecognized value! `[1, true, [0, -4, 5], "Yeah"]`
+Value Parsed: "UNIMPLEMENTED OR WRONG SYNTAX"
+Value Parsed: "UNIMPLEMENTED OR WRONG SYNTAX"
 Value Parsed: "Magic"
-Value Parsed: 22
-Value Parsed: false
-
-Parsed Object:
-{
-	"a": 42,
-	"b": -69,
-	"c": "\"Cute string\" said Onur",
-	"bar": true,
-	"d": 3.141592653589793,
-	"e": 69420.0,
-	"foo": false,
-	"hex": 65,
-	"octal": 27,
-	"simple_array": "UNIMPLEMENTED",
-	"complex_array": "UNIMPLEMENTED",
-	"hard_array": "UNIMPLEMENTED",
-	"simple_obj": "UNIMPLEMENTED",
-	"try": 31,
-	"this": -6.9,
-	"boo": false,
-	"complex_obj": "UNIMPLEMENTED",
-	"aar": "UNIMPLEMENTED",
-	"hard_obj": "UNIMPLEMENTED",
-	"oof": "UNIMPLEMENTED",
-	"oz": "Magic",
-	"33": "UNIMPLEMENTED",
-	"yeah": "UNIMPLEMENTED",
-	"a": 22,
-	"b": false,
-}
-
+Value Parsed: [-3, null]
+Value Parsed: -3
+Value Parsed: null
+Value Parsed: [{"a": 22, "b": false}, 2222, -99]
+Value Parsed: {"a": 22
+JSON: Parser.cpp:281: OK::Value get_value_after_colon(std::string_view):
+Assertion `false' failed.
+[1]    13411 abort (core dumped)  ../bin/JSON
 ```
 
