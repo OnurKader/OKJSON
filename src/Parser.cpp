@@ -75,6 +75,9 @@ std::optional<Value> Parser::parse_value(const std::string_view str_view)
 	if(auto opt = parse_bool(str_view); opt.has_value())
 		return Value(opt.value());
 
+	if(auto opt = parse_null(str_view); opt.has_value())
+		return opt.value();
+
 	if(auto opt = parse_string(str_view); opt.has_value())
 		return Value(opt.value());
 
@@ -135,6 +138,13 @@ std::optional<bool> Parser::parse_bool(const std::string_view str_view)
 	return std::nullopt;
 }
 
+std::optional<Value> Parser::parse_null(const std::string_view str_view)
+{
+	if(str_view == "null")
+		return null();
+	return std::nullopt;
+}
+
 std::optional<std::string*> Parser::parse_string(const std::string_view str_view)
 {
 	// MAYBE: check escape sequences \", \n etc...
@@ -170,13 +180,19 @@ std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 		static_cast<size_t>(std::count(str_view.cbegin(), str_view.cend(), ','));
 	std::vector<Value> values;
 	values.reserve(comma_count + 1ULL);
-	// MAYBE: just std::all_of() with !parse_value().is_undefined()?
 	for(size_t i = 1ULL; i < str_view.size(); ++i)
 	{
-		const size_t seperator_index = str_view.find_first_of(",]", i + 1ULL);
-		std::string_view value_seperated_by_comma = str_view.substr(i, seperator_index - 1ULL);
-		// Qt Creator doesn't support this syntax
-		if(const auto value = parse_value(value_seperated_by_comma); !value)
+		// FIXME: Don't add ']' here just check for ',' and npos
+		// FIXME: Actually ',' is wrong too like I said up there, strings can have commas
+		// TODO: Make this into a function that checks whether ,] are in a string or like an
+		// object(?)
+		const size_t seperator_index = str_view.find_first_of(",]", i);
+		const size_t first_non_whitespace_index = str_view.find_first_not_of(' ', i);
+		std::string_view value_seperated_by_comma = str_view.substr(
+			first_non_whitespace_index, seperator_index - first_non_whitespace_index);
+		i = seperator_index;
+
+		if(const auto value = parse_value(value_seperated_by_comma); value.has_value())
 			values.push_back(*value);	 // emplace_back with value? Copy const?
 		else
 			return std::nullopt;
@@ -193,21 +209,34 @@ std::string_view get_variable_name_in_quotes(const std::string_view str_view)
 	return str_view.substr(1ULL, close_quote_index - 1ULL);
 }
 
-// FR: Add some helper functions which extract individual data like a string after a colon or an
-// object or an array
-std::optional<std::string_view> get_string_after_colon(const std::string_view str_view)
+// FR: Add some helper functions which extract individual data like an object or an array
+std::optional<std::string_view> extract_string_from_view(const std::string_view str_view)
 {
-	const size_t first_quote_index = str_view.find('"');
-	bool in_quotes = true;
-	for(size_t i = first_quote_index + 1ULL; i < str_view.size(); ++i)
+	for(size_t i = 1ULL; i < str_view.size(); ++i)
 	{
 		switch(str_view[i])
 		{
 			case '\\': ++i; continue;
-			case '"': in_quotes = !in_quotes; break;
+			case '"': return str_view.substr(0ULL, i + 1ULL);
 		}
-		if(!in_quotes)
-			return str_view.substr(first_quote_index, i - 1ULL);
+	}
+	return std::nullopt;
+}
+
+std::optional<std::string_view> extract_array_from_view(const std::string_view str_view)
+{
+	size_t bracket_count = 0ULL;
+	for(size_t i = 1ULL; i < str_view.size(); ++i)
+	{
+		switch(str_view[i])
+		{
+			case '[': ++bracket_count; break;
+			case ']':
+				if(bracket_count == 0ULL)
+					return str_view.substr(0ULL, i + 1ULL);
+				--bracket_count;
+				break;
+		}
 	}
 	return std::nullopt;
 }
@@ -220,17 +249,30 @@ OK::Value get_value_after_colon(const std::string_view str_view)
 	// BUG: This breaks objects, {"a": {"owo": 12}}
 	//                                will detect ^ as the ending, but it's not
 
-	std::string_view colon_value_str {"\"UNIMPLEMENTED\""};
+	std::string_view colon_value_str {"\"UNIMPLEMENTED OR WRONG SYNTAX\""};
 
 	const auto first_non_space_index = str_view.find_first_not_of(" \t\n", 1ULL);
 	const char first_non_space_char = str_view[first_non_space_index];
 	switch(first_non_space_char)
 	{
 		case '"':
-			colon_value_str = get_string_after_colon(str_view).value_or(std::string_view());
+		{
+			if(const auto string = extract_string_from_view(str_view.substr(first_non_space_index));
+			   string.has_value())
+				colon_value_str = *string;
 			break;
-		case '[': break;
-		case '{': break;
+		}
+		case '[':
+		{
+			if(const auto array = extract_array_from_view(str_view.substr(first_non_space_index));
+			   array.has_value())
+				colon_value_str = *array;
+			break;
+		}
+		case '{':
+		{
+			break;
+		}
 		default:
 		{
 			const auto comma_or_brace_index = str_view.find_first_of(",}\n", first_non_space_index);
