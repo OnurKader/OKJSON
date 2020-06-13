@@ -9,6 +9,7 @@
 
 std::optional<std::string_view> extract_string_from_view(const std::string_view str_view);
 std::optional<std::string_view> extract_array_from_view(const std::string_view str_view);
+
 /**
  * @brief This function extracts the identifier name in double quotes
  * @param str_view The view to extract from
@@ -185,8 +186,8 @@ std::optional<Array*> Parser::parse_array(const std::string_view str_view)
 	{
 		// FIXME: Don't add ']' here just check for ',' and npos
 		// FIXME: Actually ',' is wrong too like I said up there, strings can have commas
-		// TODO: Make this into a function that checks whether ,] are in a string or like an
-		// object(?)
+
+		// TODO: Make this into a function that checks whether ,] are in a string
 		const size_t seperator_index = str_view.find_first_of(",]", i);
 		const size_t first_non_whitespace_index = str_view.find_first_not_of(' ', i);
 		std::string_view value_seperated_by_comma = str_view.substr(
